@@ -9,8 +9,8 @@ LDFLAGS = -lmy_stdext
 
 SRCDIR = ./srcs
 OBJDIR = ./objs
-INCDIR = ./include ./my_stdext/include
-SRCS = main1.c ecosys.c
+INCDIR = -I./include -I./my_stdext/includes
+SRCS = main.c ecosys.c
 ifeq ($(DEBUG),yes)
 	CC = clang
 	CFLAGS += -ggdb -g3 -fstack-protector-all -Wshadow -Wunreachable-code \
@@ -21,7 +21,6 @@ ifeq ($(DEBUG),yes)
 			  -Wpointer-arith -Wnested-externs -Wstrict-overflow=5 \
 			  -Wno-missing-field-initializers -Wswitch-default -Wswitch-enum \
 			  -Wbad-function-cast -Wredundant-decls -fno-omit-frame-pointer
-	SRCS = image.c my_string.c pgm_image.c main_test.c noyau.c trans_image.c
 else
 	CC = gcc
 	CFLAGS += -O3
@@ -33,14 +32,16 @@ OBJS = $(SRCS:.c=.o)
 OBJS_PREF = $(addprefix $(OBJDIR)/, $(OBJS))
 NAME = ecosys
 
-all: $(NAME)
-	@mkdir -p objs include srcs
+all: objdir $(NAME)
+
+objdir:
+	@mkdir -p objs
 
 $(NAME): $(OBJS_PREF)
-	$(LD) -o $@ $^ $(LDFLAGS) -I$(INCDIR)
+	$(LD) -o $@ $^ $(LDFLAGS) $(INCDIR)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
-	$(CC) -o $@ -c $< $(CFLAGS) -I$(INCDIR)
+	$(CC) -o $@ -c $< $(CFLAGS) $(INCDIR)
 
 clean:
 	rm -f $(OBJS_PREF)

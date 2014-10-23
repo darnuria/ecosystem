@@ -10,18 +10,16 @@
 #define T_WAIT 40000
 
 int main(void) {
-  unsigned int i;
-  Animal *liste_proie = NULL;
-  Animal *liste_predateur = NULL;
+  animal_t *liste_proie = NULL;
+  animal_t *liste_predateur = NULL;
 
   /*/ Initialisation (comme main1.c) */
 
   srand(time(NULL));
-
-  for(i = 0; i < NB_PROIES; ++i) {
+  for(size_t i = 0; i < NB_PROIES; i += 1) {
     ajouter_animal(rand() % SIZE_X, rand() % SIZE_Y, &liste_proie);
   }
-  for(i = 0;i < NB_PREDATEURS; ++i) {
+  for(size_t i = 0;i < NB_PREDATEURS; i += 1) {
     ajouter_animal(rand() % SIZE_X, rand() % SIZE_Y, &liste_predateur);
   }
 

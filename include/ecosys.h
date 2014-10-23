@@ -1,6 +1,8 @@
 #ifndef _ECOSSYS_H_
 #define _ECOSYS_H_
 
+#include "list.h"
+
 #define SIZE_X 20
 #define SIZE_Y 20
 
@@ -12,12 +14,12 @@ typedef struct _animal {
   float energie;
 } animal_data_t;
 
-extern float p_ch_dir = 0.01;
-extern float d_proie = 1;
-extern float d_predateur = 1;
-extern float p_manger = 0.2;
-extern float p_reproduce = 0.01;
-extern float energie = 50;
+const float p_ch_dir_g = 0.01;
+const float d_proie_g = 1;
+const float d_predateur_g = 1;
+const float p_manger_g = 0.2;
+const float p_reproduce_g = 0.01;
+const float energie_g = 50;
 
 animal_t *creer_animal(int x, int y, float energie);
 animal_t *ajouter_en_tete_animal(animal_t *liste, animal_t *animal);

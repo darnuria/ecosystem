@@ -12,7 +12,7 @@ cavecorrector 6-7 repertoire
 
 animal_t *creer_animal(int x, int y, float energie) {
   animal_data_t *animal = malloc(sizeof(animal_data_t));
-  animal_t animal_list = NULL;
+  animal_t *animal_list = NULL;
 
   if (animal) {
     animal->x = x;
@@ -20,7 +20,7 @@ animal_t *creer_animal(int x, int y, float energie) {
     animal->energie = energie;
     animal->dir[0] = 0;
     animal->dir[1] = 0;
-    animal_list = new_list(animal);
+    animal_list = list_new(animal);
     if (animal_list == NULL) {
       perror("creer_animal: ");
       free(animal);
