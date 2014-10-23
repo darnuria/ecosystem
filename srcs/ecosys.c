@@ -7,12 +7,12 @@
 #include "list.h"
 
 /* Pour utiliser la correction automatique:
-cavecorrector 6-7 repertoire
- */
+   cavecorrector 6-7 repertoire
+   */
 
-animal_t *creer_animal(int x, int y, float energie) {
+static
+animal_data_t *animal_data_new(int x, int y, float energie) {
   animal_data_t *animal = malloc(sizeof(animal_data_t));
-  animal_t *animal_list = NULL;
 
   if (animal) {
     animal->x = x;
@@ -20,28 +20,50 @@ animal_t *creer_animal(int x, int y, float energie) {
     animal->energie = energie;
     animal->dir[0] = 0;
     animal->dir[1] = 0;
+  } else {
+    perror("animal_data_new: ");
+  }
+  return animal;
+}
+
+
+animal_t *creer_animal(int x, int y, float energie) {
+  animal_t *animal_list = NULL;
+  animal_data_t animal = animal_data_new(x, y, energie);
+
+  if (animal) {
     animal_list = list_new(animal);
     if (animal_list == NULL) {
       perror("creer_animal: ");
       free(animal);
-      return NULL;
     }
-  } else {
-    perror("creer_animal: ");
   }
   return animal_list;
 }
 
 animal_t *ajouter_en_tete_animal(animal_t *liste, animal_t *animal) {
-  /* a completer */
-  return liste;
+  return list_concat(animal, liste);
+}
+
+static
+int find_animal_aux(animal_data_t *data, animal_data_t *to_find) {
+  (void) data;
+  (void) to_find;
+  return (0);
 }
 
 void ajouter_animal(int x, int y, animal_t **liste_animal) {
-  /* a completer */
+  animal_t *new_lst = creer_animal(x, y, energy_g);
+
+  if (new_lst) {
+    *liste_animal = ajouter_en_tete_animal(*liste_animal, new_lst);
+  } else {
+    perror("ajouter_animal: ");
+  }
 }
 
 void enlever_animal(animal_t **liste, animal_t *animal) {
+
 }
 
 unsigned int compte_animal_rec(animal_t *la) {
