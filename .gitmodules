@@ -1,0 +1,3 @@
+[submodule "my_stdext"]
+	path = my_stdext
+	url = https://github.com/darnuria/my_stdext
