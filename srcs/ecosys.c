@@ -13,6 +13,7 @@
 /* Pour utiliser la correction automatique:
    cavecorrector 6-7 repertoire
    */
+
 static
 int random_range(int range) {
   int random = abs(rand()) % range;
@@ -69,15 +70,6 @@ animal_t *ajouter_en_tete_animal(animal_t *liste, animal_t *animal) {
   return list_concat(animal, liste);
 }
 
-/*
-static
-int find_animal_aux(animal_data_t *data, animal_data_t *to_find) {
-  (void) data;
-  (void) to_find;
-  return (0);
-}
-*/
-
 void ajouter_animal(int x, int y, animal_t **liste_animal) {
   animal_t *new_lst = creer_animal(x, y, energie_g);
 
@@ -91,7 +83,6 @@ void ajouter_animal(int x, int y, animal_t **liste_animal) {
 void enlever_animal(animal_t **liste, animal_t *animal) {
   list_t *poped = list_pop(*liste, (bool (*)(const void*, const void*)) &animal_eq, animal);
   free(poped);
-
 }
 
 unsigned int compte_animal_rec(animal_t *la) {
@@ -130,14 +121,32 @@ void rafraichir_predateurs(animal_t **liste_predateur, animal_t **liste_proie) {
   (void) liste_predateur;
   (void) liste_proie;
   /* a completer */
-
 }
 
-void afficher_ecosys(animal_t *liste_proie,animal_t *liste_predateur) {
-  (void) liste_proie;
-  (void) liste_predateur;
-  /* a completer */
+static
+void* memcalloc(size_t size, size_t word_size, char placeholder) {
+    char *string = malloc(size * word_size);
+    memset(string, placeholder, size);
+}
 
+void set(char *map, int x, int y, char val) {
+  ASSERT!(x <= SIZE_X);
+  ASSERT!(y <= SIZE_Y);
+  map[x + SIZE_Y * y] = val;
+}
+
+void afficher_ecosys(animal_t *liste_proie, animal_t *liste_predateur) {
+  static char *map = memcalloc(size, word_size, ' ');
+  for (list_t *tmp = liste_proie; tmp != NULL; tmp = tmp->next) {
+    set(map, tmp->x, tmp->y, 'O');
+  }
+  for (list_t *tmp = liste_proie; tmp != NULL; tmp = tmp->next) {
+    set(map, tmp->x, tmp->y, '@');
+  }
+  for (size_t i = 0; i < SIZE_Y; i += 1) {
+    write(1, map * SIZE_Y, SIZE_X);
+    putchar('\n');
+  }
 }
 
 void clear_screen(void) {
