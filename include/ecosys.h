@@ -28,7 +28,7 @@ void ajouter_animal(int x, int y, animal_t **liste_animal);
 void enlever_animal(animal_t **liste, animal_t *animal);
 unsigned int compte_animal_rec(animal_t *la);
 unsigned int compte_animal_it(animal_t *la);
-void bouger_animaux(animal_t *la);
+void bouger_animaux(animal_data_t *la);
 animal_t *animal_en_XY(animal_t *l, int x, int y);
 void rafraichir_predateurs(animal_t **liste_predateur, animal_t **liste_proie);
 void rafraichir_proies(animal_t **liste_proie);
