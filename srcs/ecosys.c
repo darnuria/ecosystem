@@ -1,30 +1,21 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
 
 #include "ecosys.h"
-
-#define EPSILON 0.00001
-// Deps
 #include "list.h"
 
-/* Pour utiliser la correction automatique:
-   cavecorrector 6-7 repertoire
-   */
+/*
+ * Pour utiliser la correction automatique:
+ * cavecorrector 6-7 repertoire
+ */
 
 static
-int random_range(int range) {
-  int random = abs(rand()) % range;
-  if (random == 0) {
-    return -1;
-  } else if (random == 1) {
-    return 0;
-  } else {
-    return 1;
-  }
+int toric_coordinate(int x, int dir, int size) {
+  return (x + dir + size) % size;
 }
+
 
 static
 animal_data_t *animal_data_new(int x, int y, float energie) {
@@ -51,6 +42,22 @@ bool animal_eq(const animal_data_t *a1, const animal_data_t *a2) {
       (fabsf(a1->energie - a2->energie) < EPSILON));
 }
 
+static
+bool dead_or_alive(const animal_data_t *cmp, const animal_data_t *placeholder) {
+  (void)placeholder;
+  return (cmp->energie < 1.000);
+}
+
+static
+void update_energy_proie(animal_data_t *animal) {
+  animal->energie -= d_proie;
+}
+
+static
+void rafraichir_proies_aux(animal_data_t *animal) {
+  bouger_animaux(animal);
+  update_energy(animal);
+}
 
 animal_t *creer_animal(int x, int y, float energie) {
   animal_t *animal_list = NULL;
@@ -81,13 +88,17 @@ void ajouter_animal(int x, int y, animal_t **liste_animal) {
 }
 
 void enlever_animal(animal_t **liste, animal_t *animal) {
-  list_t *poped = list_pop(*liste, (bool (*)(const void*, const void*)) &animal_eq, animal);
+  list_t *poped = list_pop(*liste,
+      (bool (*)(const void*, const void*)) &animal_eq, animal);
   free(poped);
 }
 
 unsigned int compte_animal_rec(animal_t *la) {
-  (void) la;
-  return 0;
+  if (la == NULL) {
+    return 0;
+  } else {
+    return 1 + compte_animal_rec(la->suivant);
+  }
 }
 
 unsigned int compte_animal_it(animal_t *la) {
@@ -95,15 +106,21 @@ unsigned int compte_animal_it(animal_t *la) {
 }
 
 void bouger_animaux(animal_t *la) {
-  (void) la;
-  /* a completer */
+  la->x = toric_coordinate(la->x, la->dir[0], SIZE_X);
+  la->y = toric_coordinate(la->y, la->dir[1], SIZE_Y);
+  if (p_ch_dir > rand() / RAND_MAX){
+    la->dir [0] = rand() % 3 - 1;
+    la->dir [1] = rand() % 3 - 1;
+  }
 }
 
 void reproduce(animal_t **liste_animal) {
-  (void) liste_animal;
-  /* a completer */
+  for (animal_t *tmp = *list_animal; tmp != NULL; tmp = tmp-next) {
+    if (p_reproduce > rand() / RAND_MAX) {
+      ajouter_animal(tmp->x, tmp->y, *liste_animal);
+    }
+  }
 }
-
 void rafraichir_proies(animal_t **liste_proie) {
   (void) liste_proie;
   /* a completer */
@@ -121,12 +138,6 @@ void rafraichir_predateurs(animal_t **liste_predateur, animal_t **liste_proie) {
   (void) liste_predateur;
   (void) liste_proie;
   /* a completer */
-}
-
-static
-void* memcalloc(size_t size, size_t word_size, char placeholder) {
-    char *string = malloc(size * word_size);
-    memset(string, placeholder, size);
 }
 
 void set(char *map, int x, int y, char val) {

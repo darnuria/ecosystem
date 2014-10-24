@@ -1,10 +1,11 @@
 #ifndef ECOSYS_H
-#define ECOSYS_H
+# define ECOSYS_H
 
 #include "list.h"
 
-#define SIZE_X 20
-#define SIZE_Y 20
+# define SIZE_X 20
+# define SIZE_Y 20
+# define EPSILON 0.00001
 
 typedef list_t animal_t;
 typedef struct _animal {
