@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include <assert.h>
 
 #include "ecosys.h"
 #include "list.h"
@@ -77,6 +76,8 @@ animal_t *creer_animal(int x, int y, float energie) {
       perror("creer_animal: ");
       free(animal);
     }
+  } else {
+    perror("creer_animal: ");
   }
   return animal_list;
 }
@@ -98,10 +99,10 @@ void ajouter_animal(int x, int y, animal_t **liste_animal) {
 void enlever_animal(animal_t **liste, animal_t *animal) {
   list_t *poped = list_pop(*liste,
       (bool (*)(const void*, const void*)) &animal_eq, animal);
-  free(poped);
+  list_delete_node(&poped, free);
 }
 
-unsigned int compte_animal_rec(animal_t *la) {
+unsigned int compte_animal_rec(const animal_t *la) {
   if (la == NULL) {
     return 0;
   } else {
@@ -109,7 +110,7 @@ unsigned int compte_animal_rec(animal_t *la) {
   }
 }
 
-unsigned int compte_animal_it(animal_t *la) {
+unsigned int compte_animal_it(const animal_t *la) {
   return (list_length(la));
 }
 
@@ -117,17 +118,17 @@ void bouger_animaux(animal_data_t *la) {
   la->x = toric_coordinate(la->x, la->dir[0], SIZE_X);
   la->y = toric_coordinate(la->y, la->dir[1], SIZE_Y);
   if (p_ch_dir_g > rand() / RAND_MAX){
-    la->dir [0] = rand() % 3 - 1;
-    la->dir [1] = rand() % 3 - 1;
+    la->dir [0] = random_range(3) - 1;
+    la->dir [1] = random_range(3) - 1;
   }
 }
 
 void reproduce(animal_t **liste_animal) {
   for (animal_t *tmp = *liste_animal; tmp != NULL; tmp = tmp->next) {
     if (p_reproduce_g > rand() / RAND_MAX) {
-      ajouter_animal(((animal_data_t *) tmp->data)->x,
-          ((animal_data_t *) tmp->data)->y,
-          liste_animal);
+    const int x = ((animal_data_t *)tmp->data)->x;
+    const int y = ((animal_data_t *)tmp->data)->y;
+      ajouter_animal(x, y, liste_animal);
     }
   }
 }
@@ -135,15 +136,26 @@ void reproduce(animal_t **liste_animal) {
 void rafraichir_proies(animal_t **liste_proie) {
   list_map_mut(*liste_proie,
       (void (*)(void *))rafraichir_proies_aux);
-  free(list_filter(*liste_proie,
-        (bool (*)(const void *, const void *))dead_or_alive, NULL));
+  animal_t *to_delete = list_filter(liste_proie,
+        (bool (*)(const void *, const void *))dead_or_alive, NULL);
+  list_delete(&to_delete, free);
   reproduce(liste_proie);
 }
 
-animal_t *animal_en_XY(animal_t *lst, int x, int y) {
-  for (animal_t *tmp = lst; tmp != NULL; tmp = tmp->next) {
-    if (((animal_data_t *)tmp->data)->x == x &&
-        ((animal_data_t *)tmp->data)->y == y) {
+static
+animal_t *animal_en_XY(animal_t **lst, int x, int y) {
+  list_t *prev = NULL;
+
+  for (list_t *tmp = *lst; tmp; prev = tmp, tmp = tmp->next) {
+    const int cur_x = ((animal_data_t *)tmp->data)->x;
+    const int cur_y = ((animal_data_t *)tmp->data)->y;
+    if (cur_x == x &&
+        cur_y == y &&
+        (tmp && p_manger_g > rand() / RAND_MAX)) {
+      if (prev != NULL) {
+        prev->next = tmp->next;
+      }
+      tmp->next = NULL;
       return tmp;
     }
   }
@@ -155,32 +167,30 @@ void predateur_eat(animal_t *lst_pred, animal_t *lst_proi) {
   for (animal_t *tmp_pred = lst_pred;
       tmp_pred;
       tmp_pred = tmp_pred->next) {
-    animal_t *proie  = animal_en_XY(lst_proi,
-        ((animal_data_t *)tmp_pred->data)->x,
-        ((animal_data_t *)tmp_pred->data)->y);
-    if (proie && p_manger_g > rand() / RAND_MAX) {
-      enlever_animal(&lst_proi, proie);
-    }
+    const int x = ((animal_data_t *)lst_pred->data)->x;
+    const int y = ((animal_data_t *)lst_pred->data)->y;
+    animal_t *proie  = animal_en_XY(&lst_proi, x, y);
+    list_delete_node(&proie, free);
   }
 }
 
 void rafraichir_predateurs(animal_t **lst_pred, animal_t **lst_proie) {
-  list_map_mut(*lst_pred, (void (*)(void *))rafraichir_predateur_aux);
-  free(list_filter(*lst_pred,
-        (bool (*)(const void *, const void *))dead_or_alive, NULL));
+  list_map_mut(*lst_pred,
+      (void (*)(void *))rafraichir_predateur_aux);
+  animal_t *to_delete = list_filter(lst_pred,
+        (bool (*)(const void *, const void *))dead_or_alive, NULL);
+  list_delete(&to_delete, free);
   reproduce(lst_pred);
   predateur_eat(*lst_pred, *lst_proie);
 }
 
 static
 void set(char *map, int x, int y, char val) {
-  assert(x <= SIZE_X);
-  assert(y <= SIZE_Y);
   map[x + SIZE_Y * y] = val;
 }
 
-void afficher_ecosys(animal_t *liste_proie, animal_t *liste_predateur) {
-  static char map[SIZE_X * SIZE_Y] = { ' ' }; // my_memcalloc(SIZE_X * SIZE_Y, sizeof(char), ' ');
+void afficher_ecosys(animal_t *liste_proie, animal_t *liste_predateur, char* map) {
+  memset(map, '.', SIZE_Y * SIZE_X);
   for (list_t *tmp = liste_proie; tmp != NULL; tmp = tmp->next) {
     set(map, ((animal_data_t *)tmp->data)->x, ((animal_data_t *)tmp->data)->y, 'O');
   }
@@ -188,7 +198,7 @@ void afficher_ecosys(animal_t *liste_proie, animal_t *liste_predateur) {
     set(map, ((animal_data_t *)tmp->data)->x, ((animal_data_t *)tmp->data)->y, '@');
   }
   for (size_t i = 0; i < SIZE_Y; i += 1) {
-    write(1, &map[SIZE_Y * i], SIZE_X);
+    write(1, &map[SIZE_X * i], SIZE_X);
     putchar('\n');
   }
 }

@@ -26,13 +26,13 @@ animal_t *creer_animal(int x, int y, float energie);
 animal_t *ajouter_en_tete_animal(animal_t *liste, animal_t *animal);
 void ajouter_animal(int x, int y, animal_t **liste_animal);
 void enlever_animal(animal_t **liste, animal_t *animal);
-unsigned int compte_animal_rec(animal_t *la);
-unsigned int compte_animal_it(animal_t *la);
+unsigned int compte_animal_rec(const animal_t *la);
+unsigned int compte_animal_it(const animal_t *la);
 void bouger_animaux(animal_data_t *la);
-animal_t *animal_en_XY(animal_t *l, int x, int y);
+// animal_t *animal_en_XY(animal_t *l, int x, int y);
 void rafraichir_predateurs(animal_t **liste_predateur, animal_t **liste_proie);
 void rafraichir_proies(animal_t **liste_proie);
-void afficher_ecosys(animal_t *liste_predateur, animal_t *liste_proie);
+void afficher_ecosys(animal_t *liste_predateur, animal_t *liste_proie, char *map);
 void clear_screen(void);
 void reproduce(animal_t **liste_animal);
 
