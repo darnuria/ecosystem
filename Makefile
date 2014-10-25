@@ -46,7 +46,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) -o $@ -c $< $(CFLAGS) $(INCDIR)
 
 build_dep:
-	make -C my_stdext
+	make re ${ARGS}-C my_stdext
 
 clean:
 	rm -f $(OBJS_PREF)
