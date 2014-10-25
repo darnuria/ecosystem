@@ -34,7 +34,7 @@ OBJS = $(SRCS:.c=.o)
 OBJS_PREF = $(addprefix $(OBJDIR)/, $(OBJS))
 NAME = ecosys
 
-all: objdir $(NAME)
+all: objdir build_dep $(NAME)
 
 objdir:
 	@mkdir -p objs
@@ -44,6 +44,9 @@ $(NAME): $(OBJS_PREF)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) -o $@ -c $< $(CFLAGS) $(INCDIR)
+
+build_dep:
+	make re ${ARGS}-C my_stdext
 
 clean:
 	rm -f $(OBJS_PREF)
