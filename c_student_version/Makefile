@@ -10,7 +10,7 @@ INCDIR = -I./include -I./my_stdext/includes
 SRCS = main.c ecosys.c
 LIBDIR = ./my_stdext
 
-CFLAGS = -Wall -Wextra -Werror -pedantic -pedantic-errors -std=c99 -Wno-unused-result
+CFLAGS = -Wall -Wextra -pedantic -pedantic-errors -std=c99 -Wno-unused-result
 LDFLAGS = -L $(LIBDIR) -lmy_stdext -lm
 
 ifeq ($(DEBUG),yes)
