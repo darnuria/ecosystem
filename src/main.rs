@@ -118,7 +118,7 @@ fn main() {
         Animal::new(x, y, dx, dy, ENERGY_DEFAULT)
     }));
 
-    let mut stdout = std::io::stdout();
+    let stdout = std::io::stdout();
     assert!(map.len() == SIZE_X * SIZE_Y);
     for i in 00..=ITERATIONS {
         // Reset screen
@@ -135,16 +135,18 @@ fn main() {
         for a in predators.iter() {
             map_set(&mut map, a.x, a.y, b'@');
         }
-
-        writeln!(stdout, "iteration: {}", i).unwrap();
-        // Dump to "screen"
-        for y in 00..SIZE_Y {
-            let line_start = SIZE_X * y;
-            let line_end = line_start + SIZE_X;
-            stdout.write_all(&map[line_start..line_end]).unwrap();
-            stdout.write_all(b"\n").unwrap();
+        {
+            let mut stdout = stdout.lock();
+            writeln!(stdout, "iteration: {}", i).unwrap();
+            // Dump to "screen"
+            for y in 00..SIZE_Y {
+                let line_start = SIZE_X * y;
+                let line_end = line_start + SIZE_X;
+                stdout.write_all(&map[line_start..line_end]).unwrap();
+                stdout.write_all(b"\n").unwrap();
+            }
+            stdout.flush().unwrap();
         }
-        stdout.flush().unwrap();
 
         // GAME UPDATE
         poors_animals = update_herbivous(poors_animals, &mut rng);
